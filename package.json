@@ -4,7 +4,8 @@
   "description": "A React-based component for uploading and editing photos and videos",
   "main": "lib/index.js",
   "dependencies": {
-
+    "flux": "^2.0.1",
+    "object-assign": "^2.0.0"
   },
   "devDependencies": {
     "broccoli": "^0.13.3",
