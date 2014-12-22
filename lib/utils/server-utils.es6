@@ -1,34 +1,35 @@
-var http = require('http');
 var RSVP = require('rsvp');
+var url = require('url');
+var FileUploader = require('./file-uploader');
+var MediaStore = require('../stores/media-store');
 
 module.exports = {
-  createPhoto: function(config, file, progressCallback) {
-    return RSVP.Promise(function(succeed, fail) {
-      var options = {
-        method: 'PUT',
-        path: config.photosPath
-      };
-      var request = http.request(options, function(response) {
-        if (response.statusCode != 200) {
-          var data = "";
-          response.on('data', function(chunk) {
-            data += chunk;
-          });
-          response.on('end', function() {
-            var object = JSON.parse(data);
-            succeed(object);
-          });
-        } else {
-          fail(response);
-        }
-      });
-      request.on('error', function(e) {
-        fail(e);
+  createMedia: function(config, token, progressCallback) {
+    var media = MediaStore.get(token);
+    var file = media.file;
+
+    return new RSVP.Promise(function(succeed, fail) {
+      let fileUploader = new FileUploader(file, {
+        fileParam: config.getFileUploadParamName(file),
+        formData: config.getUploadFormFields(file),
+        url: config.getCollectionUrl(file)
       });
 
-      var formData = new FormData();
-      request.write(formData);
-      request.end();
+      if (progressCallback) {
+        fileUploader.on('progress', function(progress) {
+          progressCallback(progress);
+        });
+      }
+
+      fileUploader.on('error', function(result) {
+        fail(result);
+      });
+
+      fileUploader.on('finish', function(result) {
+        succeed(result);
+      });
+
+      fileUploader.send();
     });
   }
 };

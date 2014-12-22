@@ -1,37 +1,39 @@
 var Dispatcher = require('../dispatcher/media-organizer-dispatcher');
 var ServerUtils = require('../utils/server-utils');
+var fauxDash = require('../utils/faux-dash');
 var Constants = require('../constants/media-constants');
-var _ = require('lodash');
 
 module.exports = {
-  createPhoto: function(config, file) {
-    var uniqueId = _.uniqueId('photo_');
+  createMedia: function(config, file) {
+    var token = fauxDash.uniqueId('media_');
     var payload = {
-      token: uniqueId,
-      type: Constants.CREATE_PHOTO_PENDING,
+      token: token,
+      type: Constants.CREATE_MEDIA_PENDING,
       file: file
     };
 
     Dispatcher.dispatchAction(payload);
-    ServerUtils.createPhoto(config, file, function(response) {
+    ServerUtils.createMedia(config, token, function(response) {
       // on upload progress
       payload = {
-        token: uniqueId,
-        type: Constants.CREATE_PHOTO_PROGRESS,
-        response: response
+        token: token,
+        type: Constants.CREATE_MEDIA_PROGRESS,
+        percentComplete: response.percentComplete,
+        progress: response.progress
       };
+
       Dispatcher.dispatchAction(payload);
     }).then(function(response) {
       payload = {
-        token: uniqueId,
-        type: Constants.CREATE_PHOTO_COMPLETE,
+        token: token,
+        type: Constants.CREATE_MEDIA_COMPLETE,
         response: response
       };
       Dispatcher.dispatchAction(payload);
     }).catch(function(error) {
       payload = {
-        token: uniqueId,
-        type: Constants.CREATE_PHOTO_ERROR,
+        token: token,
+        type: Constants.CREATE_MEDIA_ERROR,
         response: error
       };
       Dispatcher.dispatchAction(payload);
