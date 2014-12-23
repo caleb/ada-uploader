@@ -5,8 +5,8 @@ var MediaStore = require('../stores/media-store');
 
 module.exports = {
   createMedia: function(config, token, progressCallback) {
-    var media = MediaStore.get(token);
-    var file = media.file;
+    let media = MediaStore.get(config, token);
+    let file = media.file;
 
     return new RSVP.Promise(function(succeed, fail) {
       let fileUploader = new FileUploader(file, {
@@ -16,9 +16,7 @@ module.exports = {
       });
 
       if (progressCallback) {
-        fileUploader.on('progress', function(progress) {
-          progressCallback(progress);
-        });
+        fileUploader.on('progress', progressCallback);
       }
 
       fileUploader.on('error', function(result) {

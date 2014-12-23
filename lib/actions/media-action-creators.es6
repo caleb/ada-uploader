@@ -1,15 +1,22 @@
+var _ = require('lodash');
 var Dispatcher = require('../dispatcher/media-organizer-dispatcher');
 var ServerUtils = require('../utils/server-utils');
-var fauxDash = require('../utils/faux-dash');
 var Constants = require('../constants/media-constants');
 
 module.exports = {
   createMedia: function(config, file) {
-    var token = fauxDash.uniqueId('media_');
+    var token = _.uniqueId('media_');
     var payload = {
       token: token,
       type: Constants.CREATE_MEDIA_PENDING,
-      file: file
+      config: config,
+      media: {
+        mimeType: file.type,
+        name: file.name,
+        lastModifiedTime: file.lastModifiedDate,
+        size: file.size,
+        status: Constants.MEDIA_PENDING
+      }
     };
 
     Dispatcher.dispatchAction(payload);
@@ -17,24 +24,35 @@ module.exports = {
       // on upload progress
       payload = {
         token: token,
+        config: config,
         type: Constants.CREATE_MEDIA_PROGRESS,
-        percentComplete: response.percentComplete,
-        progress: response.progress
+        media: {
+          percentComplete: response.percentComplete,
+          progress: response.progress
+        }
       };
 
       Dispatcher.dispatchAction(payload);
     }).then(function(response) {
       payload = {
         token: token,
+        config: config,
         type: Constants.CREATE_MEDIA_COMPLETE,
-        response: response
+        response: response,
+        media: {
+          status: Constants.MEDIA_COMPLETE
+        }
       };
       Dispatcher.dispatchAction(payload);
     }).catch(function(error) {
       payload = {
         token: token,
+        config: config,
         type: Constants.CREATE_MEDIA_ERROR,
-        response: error
+        media: {
+          error: error,
+          status: Constants.MEDIA_ERROR
+        }
       };
       Dispatcher.dispatchAction(payload);
     });

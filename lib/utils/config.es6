@@ -1,4 +1,5 @@
 var url = require('url');
+var _ = require('lodash');
 
 class Config {
   constructor(options) {
@@ -25,6 +26,11 @@ class Config {
 
   getResourcePath(media) {
     return this.getCollectionPath(media) + `/#{media.id}`;
+  }
+
+  getResourcePathAll(mediaArray) {
+    let ids = _.chain(mediaArray).pluck('id').join(',');
+    return this.getCollectionPath(mediaArray) + `/#{ids}`
   }
 
   //////////////////////////////////////////////////////////////////
