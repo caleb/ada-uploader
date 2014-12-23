@@ -31,7 +31,6 @@ class Config {
   /// The collection URL to use for createing and fetching media ///
   //////////////////////////////////////////////////////////////////
   getCreateUrl(media) {
-    // If the collectionPath is a url, just return that
     return url.format({
       protocol: this.getProtocol(media),
       hostName: this.getHostName(media),
@@ -42,7 +41,6 @@ class Config {
   }
 
   getUpdateUrl(media) {
-    // If the collectionPath is a url, just return that
     return url.format({
       protocol: this.getProtocol(media),
       hostName: this.getHostName(media),
@@ -53,7 +51,6 @@ class Config {
   }
 
   getDeleteUrl(media) {
-    // If the collectionPath is a url, just return that
     return url.format({
       protocol: this.getProtocol(media),
       hostName: this.getHostName(media),
