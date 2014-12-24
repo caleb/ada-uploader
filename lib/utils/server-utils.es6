@@ -10,9 +10,9 @@ module.exports = {
 
     return new RSVP.Promise(function(succeed, fail) {
       let fileUploader = new FileUploader(file, {
-        fileParam: config.getFileUploadParamName(file),
-        formData: config.getUploadFormFields(file),
-        url: config.getCollectionUrl(file)
+        fileParam: config.getFileUploadParamName(media),
+        formData: config.getUploadFormFields(media),
+        url: config.getCollectionUrl(media)
       });
 
       if (progressCallback) {

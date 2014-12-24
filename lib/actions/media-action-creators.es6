@@ -34,14 +34,15 @@ module.exports = {
 
       Dispatcher.dispatchAction(payload);
     }).then(function(response) {
+      response = config.parseCreateResponse(response);
+
       payload = {
         token: token,
         config: config,
         type: Constants.CREATE_MEDIA_COMPLETE,
-        response: response,
-        media: {
+        media: _.merge(response, {
           status: Constants.MEDIA_COMPLETE
-        }
+        })
       };
       Dispatcher.dispatchAction(payload);
     }).catch(function(error) {

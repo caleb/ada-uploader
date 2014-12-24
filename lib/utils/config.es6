@@ -25,12 +25,12 @@ class Config {
   }
 
   getResourcePath(media) {
-    return this.getCollectionPath(media) + `/#{media.id}`;
+    return media.href;
   }
 
   getResourcePathAll(mediaArray) {
     let ids = _.chain(mediaArray).pluck('id').join(',');
-    return this.getCollectionPath(mediaArray) + `/#{ids}`
+    return this.getCollectionPath(mediaArray) + `/#{ids}`;
   }
 
   //////////////////////////////////////////////////////////////////
@@ -108,6 +108,13 @@ class Config {
     }
 
     return fields;
+  }
+
+  parseCreateResponse(response) {
+    let key = _.chain(response).keys()
+          .filter(k => ! _.include(['links', 'linked', 'meta'], k))
+          .value()[0];
+    return response[key];
   }
 }
 
