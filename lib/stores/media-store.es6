@@ -18,7 +18,7 @@ function updateMediaUploadProgress(config, token, mediaObject) {
   media = media.setIn([config, token, '_meta', 'percentComplete'], mediaObject._meta.percentComplete);
 }
 
-function editMedia(config, token) {
+function mediaClicked(config, token) {
   currentMedia.set(config, media.getIn([config, token]));
 }
 
@@ -61,8 +61,8 @@ class MediaStore extends EventEmitter {
       updateMedia(payload.config, payload.token, payload.media);
       this.emitChange();
       break;
-    case Constants.EDIT_MEDIA:
-      editMedia(payload.config, payload.token);
+    case Constants.MEDIA_CLICKED:
+      mediaClicked(payload.config, payload.token);
       this.emitChange();
       break;
     }
