@@ -1,88 +1,62 @@
 var url = require('url');
 var _ = require('lodash');
+var halfred = require('halfred');
+var reqwest = require('reqwest');
 
 class Config {
-  constructor(options) {
-    this.protocol            = options.protocol || window.location.protocol;
-    this.hostName            = options.hostName || window.location.host;
-    this.port                = options.port || window.location.port;
+  constructor(mediaOwnerOrUrl, options) {
+    this.mediaOwnerOrUrl     = mediaOwnerOrUrl;
+    this.mediaRelation       = options.mediaRelation || 'media';
     this.acceptedTypes       = options.acceptedTypes || [/video\/.*/, /image\/.*/];
-    this.collectionPath      = options.collectionPath;
-    this.createQueryParams   = options.createQueryParams;
     this.fileCreateParamName = options.fileCreateParamName || 'file';
   }
 
-  getProtocol(media) {
-    return this.protocol;
+  getMediaOwner() {
+    if (this.mediaOwner) {
+      return RSVP.resolve(this.mediaOwner);
+    } else if (_.isObject(this.mediaOwnerOrUrl)) {
+      this.mediaOwner = halfred.parse(this.mediaOwnerOrUrl);
+      return RSVP.resolve(this.mediaOwner);
+    } else if (_.isString(this.mediaOwnerOrUrl)) {
+      return reqwest({
+        headers: {
+          Accept: 'application/hal+json'
+        },
+        type: 'json',
+        url: this.mediaOwner
+      }).then(function(value) {
+        this.mediaOwner = halfred.parse(value);
+        return this.mediaOwner;
+      }.bind(this));
+    } else {
+      console.log('mediaOwnerOrUrl must be an object or a url');
+      return RSVP.resolve(null);
+    }
   }
 
-  getHostName(media) {
-    return this.hostName;
+  ///////////
+  /// API ///
+  ///////////
+  getCollectionUrl() {
+    return this.getCreateUrl();
   }
 
-  getCollectionPath(media) {
-    return this.collectionPath;
-  }
-
-  getResourcePath(media) {
-    return media.href;
-  }
-
-  getResourcePathAll(mediaArray) {
-    let ids = _.chain(mediaArray).pluck('id').join(',');
-    return this.getCollectionPath(mediaArray) + `/#{ids}`;
-  }
-
-  //////////////////////////////////////////////////////////////////
-  /// The collection URL to use for createing and fetching media ///
-  //////////////////////////////////////////////////////////////////
-  getCreateUrl(media) {
-    return url.format({
-      protocol: this.getProtocol(media),
-      hostName: this.getHostName(media),
-      port:     this.getPort(media),
-      pathname: this.getCollectionPath(media),
-      query:    this.getCreateQueryParams(media)
-    });
-  }
-
-  getUpdateUrl(media) {
-    return url.format({
-      protocol: this.getProtocol(media),
-      hostName: this.getHostName(media),
-      port:     this.getPort(media),
-      pathname: this.getResourcePath(media),
-      query:    this.getUpdateQueryParams(media)
-    });
-  }
-
-  getDeleteUrl(media) {
-    return url.format({
-      protocol: this.getProtocol(media),
-      hostName: this.getHostName(media),
-      port:     this.getPort(media),
-      pathname: this.getResourcePath(media),
-      query:    this.getDeleteQueryParams(media)
-    });
-  }
-
-  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  /// Returns an object of key/value pairs to pass as query params to the collection url for creating new media ///
-  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  getCreateQueryParams(media) {
-    return this.queryParams;
-  }
-
-  getUpdateQueryParams(media) {
-    return this.queryParams;
-  }
-
-  getDeleteQueryParams(media) {
-    return this.queryParams;
+  getCreateUrl() {
+    return this.getMediaOwner().then(function(owner) {
+      return owner.link(this.mediaRelation).href;
+    }.bind(this));
   }
 
   getFileCreateParamName(media) {
     return this.fileCreateParamName;
+  }
+
+  getMediaUrl(media) {
+    return RSVP.resolve(media.link('self').href);
+  }
+
+  getMediaUpdateUrl(media) {
+    return this.getMediaUrl(media);
   }
 
   ///////////////////////////////////////////////////////////////////////////////////////////
@@ -108,13 +82,6 @@ class Config {
     }
 
     return fields;
-  }
-
-  parseCreateResponse(response) {
-    let key = _.chain(response).keys()
-          .filter(k => ! _.include(['links', 'linked', 'meta'], k))
-          .value()[0];
-    return response[key];
   }
 }
 

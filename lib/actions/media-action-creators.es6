@@ -11,24 +11,28 @@ module.exports = {
       type: Constants.CREATE_MEDIA_PENDING,
       config: config,
       media: {
-        mimeType: file.type,
-        name: file.name,
-        lastModifiedTime: file.lastModifiedDate,
-        size: file.size,
-        status: Constants.MEDIA_PENDING
+        _meta: {
+          mimeType: file.type,
+          name: file.name,
+          lastModifiedTime: file.lastModifiedDate,
+          size: file.size,
+          status: Constants.MEDIA_PENDING
+        }
       }
     };
 
     Dispatcher.dispatchAction(payload);
-    ServerUtils.createMedia(config, token, function(response) {
+    ServerUtils.createMedia(config, token, file, function(response) {
       // on upload progress
       payload = {
         token: token,
         config: config,
         type: Constants.CREATE_MEDIA_PROGRESS,
         media: {
-          percentComplete: response.percentComplete,
-          progress: response.progress
+          _meta: {
+            percentComplete: response.percentComplete,
+            progress: response.progress
+          }
         }
       };
 
@@ -40,10 +44,13 @@ module.exports = {
         token: token,
         config: config,
         type: Constants.CREATE_MEDIA_COMPLETE,
-        media: _.merge(response, {
-          status: Constants.MEDIA_COMPLETE
-        })
+        media: _.merge({
+          _meta: {
+            status: Constants.MEDIA_COMPLETE
+          }
+        }, response)
       };
+
       Dispatcher.dispatchAction(payload);
     }).catch(function(error) {
       payload = {
@@ -51,10 +58,13 @@ module.exports = {
         config: config,
         type: Constants.CREATE_MEDIA_ERROR,
         media: {
-          error: error,
-          status: Constants.MEDIA_ERROR
+          _meta: {
+            error: error,
+            status: Constants.MEDIA_ERROR
+          }
         }
       };
+
       Dispatcher.dispatchAction(payload);
     });
   }

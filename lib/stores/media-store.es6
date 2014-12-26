@@ -4,6 +4,7 @@ var Immutable = require('immutable');
 var EventEmitter = require('events').EventEmitter;
 
 let media = Immutable.Map({});
+let currentMedia = Immutable.Map({});
 
 function createMedia(config, token, mediaObject) {
   media = media.setIn([config, token], Immutable.fromJS(mediaObject));
@@ -14,7 +15,11 @@ function updateMedia(config, token, mediaObject) {
 }
 
 function updateMediaUploadProgress(config, token, mediaObject) {
-  media = media.setIn([config, token, 'percentComplete'], mediaObject.percentComplete);
+  media = media.setIn([config, token, '_meta', 'percentComplete'], mediaObject._meta.percentComplete);
+}
+
+function editMedia(config, token) {
+  currentMedia.set(config, media.getIn([config, token]));
 }
 
 function deleteMedia(config, token) {
@@ -23,18 +28,22 @@ function deleteMedia(config, token) {
 
 class MediaStore extends EventEmitter {
   constructor() {
-    this.dispatchToken = Dispatcher.register(this.handleEvent.bind(this));
+    this.dispatchToken = Dispatcher.register(this._handleEvent.bind(this));
   }
 
   get(config, token) {
     return media.getIn([config, token]);
   }
 
+  getCurrent(config) {
+    return currentMedia.get(config);
+  }
+
   emitChange() {
     this.emit('change');
   }
 
-  handleEvent(payload) {
+  _handleEvent(payload) {
     switch(payload.type) {
     case Constants.CREATE_MEDIA_PENDING:
       createMedia(payload.config, payload.token, payload.media);
@@ -50,6 +59,10 @@ class MediaStore extends EventEmitter {
       break;
     case Constants.CREATE_MEDIA_ERROR:
       updateMedia(payload.config, payload.token, payload.media);
+      this.emitChange();
+      break;
+    case Constants.EDIT_MEDIA:
+      editMedia(payload.config, payload.token);
       this.emitChange();
       break;
     }

@@ -4,8 +4,11 @@
   "description": "A React-based component for uploading and editing photos and videos",
   "main": "lib/index.js",
   "dependencies": {
+    "URIjs": "^1.14.1",
     "flux": "^2.0.1",
+    "halfred": "^0.4.0",
     "object-assign": "^2.0.0",
+    "reqwest": "^1.1.5",
     "rsvp": "^3.0.16"
   },
   "devDependencies": {
