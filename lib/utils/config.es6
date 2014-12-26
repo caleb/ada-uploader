@@ -60,7 +60,7 @@ class Config {
   }
 
   ///////////////////////////////////////////////////////////////////////////////////////////
-  /// Return an object of key value pairs to include in the FormData when createing media ///
+  /// Return an object of key value pairs to include in the FormData when creating media ///
   ///////////////////////////////////////////////////////////////////////////////////////////
   getCreateFormFields(media) {
     var csrfParamTag = document.querySelectorAll('meta[name=csrf-param]');

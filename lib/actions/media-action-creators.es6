@@ -37,8 +37,8 @@ module.exports = {
       };
 
       Dispatcher.dispatchAction(payload);
-    }).then(function(response) {
-      response = config.parseCreateResponse(response);
+    }).then(function(responseText, xhr, file) {
+      response = config.parseCreateResponse(reponseText);
 
       payload = {
         token: token,
@@ -52,7 +52,7 @@ module.exports = {
       };
 
       Dispatcher.dispatchAction(payload);
-    }).catch(function(error) {
+    }, function(responseText, xhr, file) {
       payload = {
         token: token,
         config: config,

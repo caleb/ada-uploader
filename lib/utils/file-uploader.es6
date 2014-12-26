@@ -55,12 +55,12 @@ class FileUploader extends EventEmitter {
       var acceptableStatus = acceptableStatuses.indexOf(status) >= 0;
 
       if (status > 0 && !acceptableStatus) {
-        this.emit('error', { responseText: event.target.responseText, event: event, file: file });
+        this.emit('error', { responseText: event.target.responseText, xhr: event.target, file: file });
       }
 
       if (acceptableStatus && event.target.responseText && ! this.responded) {
         this.responded = true;
-        this.emit('finish', { responseText: event.target.responseText, event: event, file: file });
+        this.emit('finish', { responseText: event.target.responseText, xhr: event.target, file: file });
       }
     }.bind(this);
   }

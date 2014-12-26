@@ -19,16 +19,16 @@ module.exports = {
           fileUploader.on('progress', progressCallback);
         }
 
-        fileUploader.on('error', function(result) {
-          reject(result);
+        fileUploader.on('error', function(respnseText, xhr, file) {
+          reject(responseText, xhr, file);
         });
 
-        fileUploader.on('finish', function(result) {
-          resolve(result);
+        fileUploader.on('finish', function(responseText, xhr, file) {
+          resolve(responseText, xhr, file);
         });
 
         fileUploader.send();
-      }, function(error, message) {
+      }, function(error) {
         reject(error, message);
       });
     });
