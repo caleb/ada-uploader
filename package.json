@@ -5,16 +5,18 @@
   "main": "lib/index.js",
   "dependencies": {
     "URIjs": "^1.14.1",
+    "broccoli-react": "^0.7.0",
     "flux": "^2.0.1",
     "halfred": "^0.4.0",
     "object-assign": "^2.0.0",
+    "react": "^0.12.2",
     "reqwest": "^1.1.5",
     "rsvp": "^3.0.16"
   },
   "devDependencies": {
     "broccoli": "^0.13.3",
     "broccoli-6to5-transpiler": "^0.1.1",
-    "broccoli-fast-browserify": "^0.2.3",
+    "broccoli-fast-browserify": "^0.2.4",
     "broccoli-funnel": "^0.1.6",
     "broccoli-merge-trees": "^0.2.1",
     "broccoli-uglify-js": "^0.1.3"

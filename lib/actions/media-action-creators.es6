@@ -1,3 +1,6 @@
+/* jshint esnext:true, browserify:true */
+"use strict";
+
 var _ = require('lodash');
 var Dispatcher = require('../dispatcher/media-organizer-dispatcher');
 var ServerUtils = require('../utils/server-utils');
@@ -12,6 +15,7 @@ module.exports = {
       config: config,
       media: {
         _meta: {
+          token: token,
           mimeType: file.type,
           name: file.name,
           lastModifiedTime: file.lastModifiedDate,
@@ -38,7 +42,7 @@ module.exports = {
 
       Dispatcher.dispatchAction(payload);
     }).then(function(responseText, xhr, file) {
-      response = config.parseCreateResponse(reponseText);
+      let response = config.parseCreateResponse(responseText);
 
       payload = {
         token: token,
@@ -59,12 +63,31 @@ module.exports = {
         type: Constants.CREATE_MEDIA_ERROR,
         media: {
           _meta: {
-            error: error,
+            error: responseText,
             status: Constants.MEDIA_ERROR
           }
         }
       };
 
+      Dispatcher.dispatchAction(payload);
+    });
+  },
+
+  loadFromConfig: function(config) {
+    // preloads the store from a configuration object
+    config.getPreloadedMedia().then(function(media) {
+      // add a token to each preloaded media
+      media.forEach(function(media) {
+        let token = _.uniqueId('media_');
+        media._meta = media._meta || {};
+        media._meta.token = {};
+      });
+
+      var payload = {
+        type: Constants.LOAD_FROM_CONFIG,
+        config: config,
+        media: media
+      };
       Dispatcher.dispatchAction(payload);
     });
   }

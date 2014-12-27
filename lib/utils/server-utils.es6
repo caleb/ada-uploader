@@ -1,3 +1,6 @@
+/* jshint esnext:true, browserify:true */
+"use strict";
+
 var RSVP = require('rsvp');
 var url = require('url');
 var FileUploader = require('./file-uploader');

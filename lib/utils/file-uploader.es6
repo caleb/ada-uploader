@@ -1,3 +1,6 @@
+/* jshint esnext:true, browserify:true */
+"use strict";
+
 var EventEmitter = require('events').EventEmitter;
 
 class FileUploader extends EventEmitter {
@@ -11,6 +14,7 @@ class FileUploader extends EventEmitter {
     }
 
     this.formData = new FormData();
+    this.file = file;
 
     for (let name in formDataObject) {
       this.formData.append(name, formDataObject[name]);
@@ -21,25 +25,25 @@ class FileUploader extends EventEmitter {
 
   send() {
     this.xhr = new XMLHttpRequest();
-    this.xhr.upload.addEventListener('progress', this._onProgressHandler(file), false);
-    this.xhr.addEventListener('readystatechange', this._onReadyStateChangeHandler(file), false);
+    this.xhr.upload.addEventListener('progress', this._onProgressHandler(), false);
+    this.xhr.addEventListener('readystatechange', this._onReadyStateChangeHandler(), false);
 
     this.xhr.open('POST', this.url, true);
 
-    this.emit('start', { file: file });
+    this.emit('start', { file: this.file });
     this.xhr.send(this.formData);
   }
 
-  _onProgressHandler(file) {
+  _onProgressHandler() {
     return function(progress) {
       if (progress.lengthComputable) {
-        percent = progress.loaded / progress.total * 100;
-        this.emit('percentComplete', { percentComplete: percent, progress: progress, file: file });
+        let percent = progress.loaded / progress.total * 100;
+        this.emit('percentComplete', { percentComplete: percent, progress: progress, file: this.file });
       }
     }.bind(this);
   }
 
-  _onReadyStateChangeHandler(file) {
+  _onReadyStateChangeHandler() {
     return function(event) {
       var status = null;
 
@@ -55,12 +59,12 @@ class FileUploader extends EventEmitter {
       var acceptableStatus = acceptableStatuses.indexOf(status) >= 0;
 
       if (status > 0 && !acceptableStatus) {
-        this.emit('error', { responseText: event.target.responseText, xhr: event.target, file: file });
+        this.emit('error', { responseText: event.target.responseText, xhr: event.target, file: this.file });
       }
 
       if (acceptableStatus && event.target.responseText && ! this.responded) {
         this.responded = true;
-        this.emit('finish', { responseText: event.target.responseText, xhr: event.target, file: file });
+        this.emit('finish', { responseText: event.target.responseText, xhr: event.target, file: this.file });
       }
     }.bind(this);
   }

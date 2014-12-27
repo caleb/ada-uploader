@@ -1,4 +1,9 @@
+/* jshint esnext:true, browserify:true */
+"use strict";
+
 module.exports = {
+  LOAD_FROM_CONFIG: "LOAD_FROM_CONFIG",
+
   CREATE_MEDIA_PENDING: "CREATE_MEDIA_PENDING",
   CREATE_MEDIA_COMPLETE: "CREATE_MEDIA_COMPLETE",
   CREATE_MEDIA_PROGRESS: "CREATE_MEDIA_PROGRESS",

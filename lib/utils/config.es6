@@ -1,3 +1,6 @@
+/* jshint esnext:true, browserify:true */
+"use strict";
+
 var url = require('url');
 var _ = require('lodash');
 var halfred = require('halfred');
@@ -37,6 +40,36 @@ class Config {
   ///////////
   /// API ///
   ///////////
+
+  /*
+   * Returns an array of media objects for this collection if there are preloaded
+   * objects.
+   *
+   * Returns a promise
+   */
+  getPreloadedMedia() {
+    return this.getMediaOwner().then(function(mediaOwner) {
+      let embedded = mediaOwner.embeddedResourceArray(this.mediaRelation);
+      if (embedded.length > 0) {
+        return embedded;
+      } else {
+        let url = mediaOwner.link(this.mediaRelation).href;
+
+        return reqwest({
+          headers: {
+            Accept: 'application/hal+json'
+          },
+          type: 'json',
+          url: url
+        }).then(function(value) {
+          return halfred.parse(value).embeddedResourceArray(this.mediaRelation);
+        }.bind(this), function(error) {
+          console.log("There was an error fetching the preloaded media from the server.");
+          return [];
+        }.bind(this));
+      }
+    }.bind(this));
+  }
 
   /*
    * Return the url to retrieve the media objects from.

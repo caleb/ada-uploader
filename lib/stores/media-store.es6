@@ -1,3 +1,6 @@
+/* jshint esnext:true, browserify:true */
+"use strict";
+
 var Dispatcher = require('../dispatcher/media-organizer-dispatcher');
 var Constants = require('../constants/media-constants');
 var Immutable = require('immutable');
@@ -5,6 +8,12 @@ var EventEmitter = require('events').EventEmitter;
 
 let media = Immutable.Map({});
 let currentMedia = Immutable.Map({});
+
+function loadFromConfig(config, media) {
+  media.forEach(function(media) {
+    media.setIn([config, media._meta.token], Immutable.fromJS(media));
+  });
+}
 
 function createMedia(config, token, mediaObject) {
   media = media.setIn([config, token], Immutable.fromJS(mediaObject));
@@ -45,6 +54,10 @@ class MediaStore extends EventEmitter {
 
   _handleEvent(payload) {
     switch(payload.type) {
+    case Constants.LOAD_FROM_CONFIG:
+      loadFromConfig(payload.config, payload.media);
+      this.emitChange();
+      break;
     case Constants.CREATE_MEDIA_PENDING:
       createMedia(payload.config, payload.token, payload.media);
       this.emitChange();
