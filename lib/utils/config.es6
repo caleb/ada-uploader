@@ -1,10 +1,13 @@
 /* jshint esnext:true, browserify:true */
 "use strict";
 
-var url = require('url');
-var _ = require('lodash');
-var halfred = require('halfred');
-var reqwest = require('reqwest');
+var url            = require('url');
+var _              = require('lodash');
+var halfred        = require('halfred');
+var RSVP           = require('rsvp');
+var React          = require('react');
+var reqwest        = require('reqwest');
+var MediaComponent = require('../components/media-component');
 
 class Config {
   constructor(mediaOwnerOrUrl, options) {
@@ -154,6 +157,13 @@ class Config {
     }
 
     return fields;
+  }
+
+  /*
+   * Builds a media component from the passed in media.
+   */
+  buildMediaComponent(media) {
+    return React.createElement(MediaComponent, { media: media, key: media._meta.token });
   }
 }
 

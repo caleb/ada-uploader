@@ -7,8 +7,18 @@ var merge          = require('broccoli-merge-trees');
 
 to5.prototype.extensions = ['es6', 'js'];
 
-var javascriptFiles = new funnel('lib', { include: [/(?:\.js)|(?:\.es6)$/] });
-var reactFiles = react(new funnel('lib', { include: [/(?:\.jsx)$/] }));
+function stripExtension(tree) {
+  return new funnel(tree, {
+    getDestinationPath: function(relativePath) {
+      return relativePath.replace(/\.[^.]+$/, '');
+    }
+  });
+}
+
+var javascriptFiles = new funnel('lib', { include: [/(?:\.js|\.es6)$/] });
+var reactFiles = react(new funnel('lib', { include: [/\.jsx$/] }));
+reactFiles = stripExtension(reactFiles);
+
 var es6Tree = to5(merge([javascriptFiles, reactFiles]), {
   sourceMap: 'inline'
 });

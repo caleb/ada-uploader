@@ -80,7 +80,7 @@ module.exports = {
       media.forEach(function(media) {
         let token = _.uniqueId('media_');
         media._meta = media._meta || {};
-        media._meta.token = {};
+        media._meta.token = token;
       });
 
       var payload = {

@@ -29,8 +29,11 @@ var MediaOrganizerComponent = React.createClass({
   },
 
   render: function() {
+    let mediaObjects = _.map(this.getState.media, this.props.config.buildMediaComponent);
+
     return (
       <div>
+        {mediaObjects}
       </div>
     );
   }
