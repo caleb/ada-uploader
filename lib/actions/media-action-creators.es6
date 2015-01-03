@@ -1,10 +1,10 @@
 /* jshint esnext:true, browserify:true */
 "use strict";
 
-var _ = require('lodash');
-var Dispatcher = require('../dispatcher/media-organizer-dispatcher');
+var _           = require('lodash');
+var Dispatcher  = require('../dispatcher/media-organizer-dispatcher');
 var ServerUtils = require('../utils/server-utils');
-var Constants = require('../constants/media-constants');
+var Constants   = require('../constants/media-constants');
 
 module.exports = {
   createMedia: function(config, file) {
