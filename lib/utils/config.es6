@@ -10,33 +10,59 @@ var reqwest        = require('reqwest');
 var MediaComponent = require('../components/media-component');
 
 class Config {
-  constructor(mediaOwnerOrUrl, options) {
-    this.mediaOwnerOrUrl     = mediaOwnerOrUrl;
-    this.mediaRelation       = options.mediaRelation || 'media';
-    this.acceptedTypes       = options.acceptedTypes || [/video\/.*/, /image\/.*/];
-    this.fileCreateParamName = options.fileCreateParamName || 'file';
+  constructor(mediaCollectionOrUrl, options) {
+    this.mediaCollectionOrUrl   = mediaCollectionOrUrl;
+    this.collectionRelation     = options.collectionRelation     || ['collection', 'self'];
+    this.collectionRelationName = options.collectionRelationName || 'media';
+    this.mediaRelation          = options.mediaRelation          || 'media-organizer:media';
+    this.acceptedTypes          = options.acceptedTypes          || [/video\/.*/, /image\/.*/];
+    this.fileCreateParamName    = options.fileCreateParamName    || 'file';
   }
 
-  getMediaOwner() {
-    if (this.mediaOwner) {
-      return RSVP.resolve(this.mediaOwner);
-    } else if (_.isObject(this.mediaOwnerOrUrl)) {
-      this.mediaOwner = halfred.parse(this.mediaOwnerOrUrl);
-      return RSVP.resolve(this.mediaOwner);
-    } else if (_.isString(this.mediaOwnerOrUrl)) {
+  getMediaCollection() {
+    if (this.mediaCollection) {
+      return RSVP.resolve(this.mediaCollection);
+    } else if (_.isObject(this.mediaCollectionOrUrl)) {
+      this.mediaCollection = halfred.parse(this.mediaCollectionOrUrl);
+      return RSVP.resolve(this.mediaCollection);
+    } else if (_.isString(this.mediaCollectionOrUrl)) {
       return reqwest({
         headers: {
           Accept: 'application/hal+json'
         },
         type: 'json',
-        url: this.mediaOwner
+        url: this.mediaCollectionOrUrl
       }).then(function(value) {
-        this.mediaOwner = halfred.parse(value);
-        return this.mediaOwner;
+        this.mediaCollection = halfred.parse(value);
+        return this.mediaCollection;
       }.bind(this));
     } else {
-      console.log('mediaOwnerOrUrl must be an object or a url');
+      console.log('mediaCollectionOrUrl must be an object or a url');
       return RSVP.resolve(null);
+    }
+  }
+
+  getMediaCollectionUrl(collection) {
+    let collectionRelation;
+    if (_.isString(this.collectionRelation)) {
+      collectionRelation = [this.collectionRelation];
+    } else {
+      collectionRelation = this.collectionRelation;
+    }
+
+    for (let i = 0; i < collectionRelation.length; i++) {
+      let linkArray = collection.linkArray(collectionRelation[i]);
+      if (! linkArray) { return null; }
+
+      if (linkArray.length == 1) {
+        return linkArray[0];
+      } else {
+        for (let j = 0; j < linkArray.length; ++j) {
+          if (linkArray[i].name == this.collectionRelationName) {
+            return linkArray[i];
+          }
+        }
+      }
     }
   }
 
@@ -50,25 +76,36 @@ class Config {
    *
    * Returns a promise
    */
-  getPreloadedMedia() {
-    return this.getMediaOwner().then(function(mediaOwner) {
-      let embedded = mediaOwner.embeddedResourceArray(this.mediaRelation);
+  getMedia() {
+    return this.getMediaCollection().then(function(mediaCollection) {
+      let embedded = mediaCollection.embeddedResourceArray(this.mediaRelation);
+
       if (embedded.length > 0) {
         return embedded;
       } else {
-        let url = mediaOwner.link(this.mediaRelation).href;
+        // if there aren't any embedded media resources, try looking at the 'start' or 'first'
+        // relations as this might be a paginated resource
+        let link;
+
+        let startLink = mediaCollection.link('start');
+        let firstLink = mediaCollection.link('first');
+
+        link = startLink || firstLink;
+
+        if (! link) {
+          return RSVP.reject('Couldn\'t find either a start or first relation from which to fetch the media from.');
+        }
 
         return reqwest({
           headers: {
             Accept: 'application/hal+json'
           },
           type: 'json',
-          url: url
+          url: link.href
         }).then(function(value) {
           return halfred.parse(value).embeddedResourceArray(this.mediaRelation);
         }.bind(this), function(error) {
-          console.log("There was an error fetching the preloaded media from the server.");
-          return [];
+          return RSVP.reject(`There was an error fetching the preloaded media from the server: #{error}`);
         }.bind(this));
       }
     }.bind(this));
@@ -79,7 +116,7 @@ class Config {
    *
    * Returns a promise
    */
-  getCollectionUrl() {
+  getMediaCollectionUrl() {
     return this.getCreateUrl();
   }
 
@@ -89,8 +126,8 @@ class Config {
    * Returns a promise
    */
   getCreateUrl() {
-    return this.getMediaOwner().then(function(owner) {
-      return owner.link(this.mediaRelation).href;
+    return this.getMediaCollection().then(function(mediaCollection) {
+      return this.getMediaCollectionUrl(mediaCollection);
     }.bind(this));
   }
 
@@ -160,7 +197,7 @@ class Config {
   }
 
   /*
-   * Builds a media component from the passed in media.
+   * Builds a media component (a React component) from the passed in media.
    */
   buildMediaComponent(media) {
     return React.createElement(MediaComponent, { media: media, key: media._meta.token });

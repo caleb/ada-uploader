@@ -75,7 +75,7 @@ module.exports = {
 
   loadFromConfig: function(config) {
     // preloads the store from a configuration object
-    config.getPreloadedMedia().then(function(media) {
+    config.getMedia().then(function(media) {
       // add a token to each preloaded media
       media.forEach(function(media) {
         let token = _.uniqueId('media_');
