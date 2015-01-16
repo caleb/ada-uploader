@@ -1,5 +1,5 @@
 {
-  "name": "media-organizer",
+  "name": "ada-uploader",
   "version": "0.2.0",
   "description": "A React-based component for uploading and editing photos and videos",
   "main": "lib/index.js",

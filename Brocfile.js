@@ -35,7 +35,7 @@ var bundle = fastBrowserify(es6Tree, {
   },
 
   bundles: {
-    'media-organizer.js': {
+    'ada-uploader.js': {
       entryPoints: ['index.js']
     }
   }
