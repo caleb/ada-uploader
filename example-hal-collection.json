@@ -1,0 +1,49 @@
+{
+  "_links": {
+    "self": "http://server/media?page=2",
+    "collection": "http://server/media",
+
+    "next": "http://server/media?page=3",
+    "prev": "http://server/media?page=1",
+    "first": "http://server/media?page=1",
+    "start": "http://server/media?page=1",
+    "last": "http://server/media?page=4",
+    "search": { "href": "http://server/media{?page,q}", "templated": true },
+
+    "curies": {
+      "ada-uploader": {
+        "href": "http://github.com/caleb/ada-uploader/{rel}"
+      }
+    }
+  },
+
+  "total": 100,
+
+  "_embedded": {
+    "mo:media": [
+      {
+        "_links": {
+          "self": "http://server/media/1",
+          "collection": "http://server/media",
+          "ada-uploader:original": "http://path/to/video",
+          "icon": "http://path/to/icon"
+        },
+        "title": "Ada!",
+        "mime_type": "video/mp4"
+      },
+      {
+        "_links": {
+          "self": "http://server/media/2",
+          "collection": "http://server/media",
+          "icon": "http://path/to/icon",
+          "ada-uploader:original": "http://path/to/original/image",
+          "ada-uploader:full": "http://path/to/full/image",
+          "ada-uploader:large": "http://path/to/large/image",
+          "ada-uploader:medium": "http://path/to/medium/image",
+          "ada-uploader:small": "http://path/to/small/image"
+        },
+        "title": "Ada 2!"
+      }
+    ]
+  }
+}
