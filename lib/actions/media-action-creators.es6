@@ -1,38 +1,38 @@
-/* jshint esnext:true, browserify:true */
+/* jshint esnext:true, browserify:true, devel:true, browser:true */
 "use strict";
 
 var _           = require('lodash');
-var Dispatcher  = require('../dispatcher/media-organizer-dispatcher');
+var Dispatcher  = require('../dispatcher/ada-uploader-dispatcher');
 var ServerUtils = require('../utils/server-utils');
-var Constants   = require('../constants/media-constants');
+var Constants   = require('../constants/file-constants');
 
 module.exports = {
-  createMedia: function(config, file) {
-    var token = _.uniqueId('media_');
+  createFile: function(config, file) {
+    var token = _.uniqueId('file_');
     var payload = {
       token: token,
-      type: Constants.CREATE_MEDIA_PENDING,
+      type: Constants.CREATE_FILE_PENDING,
       config: config,
-      media: {
+      file: {
         _meta: {
           token: token,
           mimeType: file.type,
           name: file.name,
           lastModifiedTime: file.lastModifiedDate,
           size: file.size,
-          status: Constants.MEDIA_PENDING
+          status: Constants.FILE_PENDING
         }
       }
     };
 
     Dispatcher.dispatchAction(payload);
-    ServerUtils.createMedia(config, token, file, function(response) {
+    ServerUtils.createFile(config, token, file, function(response) {
       // on upload progress
       payload = {
         token: token,
         config: config,
-        type: Constants.CREATE_MEDIA_PROGRESS,
-        media: {
+        type: Constants.CREATE_FILE_PROGRESS,
+        file: {
           _meta: {
             percentComplete: response.percentComplete,
             progress: response.progress
@@ -47,10 +47,10 @@ module.exports = {
       payload = {
         token: token,
         config: config,
-        type: Constants.CREATE_MEDIA_COMPLETE,
-        media: _.merge({
+        type: Constants.CREATE_FILE_COMPLETE,
+        file: _.merge({
           _meta: {
-            status: Constants.MEDIA_COMPLETE
+            status: Constants.FILE_COMPLETE
           }
         }, response)
       };
@@ -60,11 +60,11 @@ module.exports = {
       payload = {
         token: token,
         config: config,
-        type: Constants.CREATE_MEDIA_ERROR,
-        media: {
+        type: Constants.CREATE_FILE_ERROR,
+        file: {
           _meta: {
             error: responseText,
-            status: Constants.MEDIA_ERROR
+            status: Constants.FILE_ERROR
           }
         }
       };
@@ -75,18 +75,18 @@ module.exports = {
 
   loadFromConfig: function(config) {
     // preloads the store from a configuration object
-    config.getMedia().then(function(media) {
-      // add a token to each preloaded media
-      media.forEach(function(media) {
-        let token = _.uniqueId('media_');
-        media._meta = media._meta || {};
-        media._meta.token = token;
+    config.getFiles().then(function(file) {
+      // add a token to each preloaded file
+      file.forEach(function(file) {
+        let token = _.uniqueId('file_');
+        file._meta = file._meta || {};
+        file._meta.token = token;
       });
 
       var payload = {
         type: Constants.LOAD_FROM_CONFIG,
         config: config,
-        media: media
+        file: file
       };
       Dispatcher.dispatchAction(payload);
     });

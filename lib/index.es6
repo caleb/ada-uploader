@@ -1,13 +1,13 @@
-/* jshint esnext:true, browserify:true */
+/* jshint esnext:true, browserify:true, devel:true, browser:true */
 "use strict";
 
-var Dispatcher              = require('./dispatcher/media-organizer-dispatcher');
-var Config                  = require('./utils/config');
-var ActionCreators          = require('./actions/media-action-creators');
-var MediaOrganizerComponent = require('./components/media-organizer-component');
-var _                       = require('lodash');
+var Dispatcher           = require('./dispatcher/ada-uploader-dispatcher');
+var Config               = require('./utils/config');
+var ActionCreators       = require('./actions/file-action-creators');
+var AdaUploaderComponent = require('./components/ada-uploader-component');
+var _                    = require('lodash');
 
-class MediaOrganizer {
+class AdaUploader {
   constructor(config, options) {
     this.config = config;
     this.options = _.merge({
@@ -18,4 +18,4 @@ class MediaOrganizer {
   }
 }
 
-module.exports = MediaOrganizer;
+module.exports = AdaUploader;

@@ -1,20 +1,20 @@
-/* jshint esnext:true, browserify:true */
+/* jshint esnext:true, browserify:true, devel:true, browser:true */
 "use strict";
 
 var RSVP = require('rsvp');
 var url = require('url');
 var FileUploader = require('./file-uploader');
-var MediaStore = require('../stores/media-store');
+var FileStore = require('../stores/file-store');
 
 module.exports = {
-  createMedia: function(config, token, file, progressCallback) {
-    let media = MediaStore.get(config, token);
+  createFile: function(config, token, fileBlob, progressCallback) {
+    let file = FileStore.get(config, token);
 
     return new RSVP.Promise(function(resolve, reject) {
       config.getCreateUrl().then(function(url) {
-        let fileUploader = new FileUploader(file, {
-          fileParam: config.getFileUploadParamName(media),
-          formData: config.getUploadFormFields(media),
+        let fileUploader = new FileUploader(fileBlob, {
+          fileParam: config.getFileUploadParamName(file),
+          formData: config.getUploadFormFields(file),
           url: url
         });
 
@@ -22,7 +22,7 @@ module.exports = {
           fileUploader.on('progress', progressCallback);
         }
 
-        fileUploader.on('error', function(respnseText, xhr, file) {
+        fileUploader.on('error', function(responseText, xhr, file) {
           reject(responseText, xhr, file);
         });
 
@@ -32,7 +32,7 @@ module.exports = {
 
         fileUploader.send();
       }, function(error) {
-        reject(error, message);
+        reject(error);
       });
     });
   }

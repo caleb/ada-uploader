@@ -1,4 +1,4 @@
-/* jshint esnext:true, browserify:true */
+/* jshint esnext:true, browserify:true, devel:true, browser:true */
 "use strict";
 
 var url            = require('url');
@@ -7,42 +7,42 @@ var halfred        = require('halfred');
 var RSVP           = require('rsvp');
 var React          = require('react');
 var reqwest        = require('reqwest');
-var MediaComponent = require('../components/media-component');
+var FileComponent = require('../components/file-component');
 
 class Config {
-  constructor(mediaCollectionOrUrl, options) {
-    this.mediaCollectionOrUrl   = mediaCollectionOrUrl;
+  constructor(fileCollectionOrUrl, options) {
+    this.fileCollectionOrUrl    = fileCollectionOrUrl;
     this.collectionRelation     = options.collectionRelation     || ['collection', 'self'];
-    this.collectionRelationName = options.collectionRelationName || 'media';
-    this.mediaRelation          = options.mediaRelation          || 'media-organizer:media';
+    this.collectionRelationName = options.collectionRelationName || 'file';
+    this.fileRelation           = options.fileRelation           || 'ada-uploader:file';
     this.acceptedTypes          = options.acceptedTypes          || [/video\/.*/, /image\/.*/];
     this.fileCreateParamName    = options.fileCreateParamName    || 'file';
   }
 
-  getMediaCollection() {
-    if (this.mediaCollection) {
-      return RSVP.resolve(this.mediaCollection);
-    } else if (_.isObject(this.mediaCollectionOrUrl)) {
-      this.mediaCollection = halfred.parse(this.mediaCollectionOrUrl);
-      return RSVP.resolve(this.mediaCollection);
-    } else if (_.isString(this.mediaCollectionOrUrl)) {
+  getFilesCollection() {
+    if (this.fileCollection) {
+      return RSVP.resolve(this.fileCollection);
+    } else if (_.isObject(this.fileCollectionOrUrl)) {
+      this.fileCollection = halfred.parse(this.fileCollectionOrUrl);
+      return RSVP.resolve(this.fileCollection);
+    } else if (_.isString(this.fileCollectionOrUrl)) {
       return reqwest({
         headers: {
           Accept: 'application/hal+json'
         },
         type: 'json',
-        url: this.mediaCollectionOrUrl
+        url: this.fileCollectionOrUrl
       }).then(function(value) {
-        this.mediaCollection = halfred.parse(value);
-        return this.mediaCollection;
+        this.fileCollection = halfred.parse(value);
+        return this.fileCollection;
       }.bind(this));
     } else {
-      console.log('mediaCollectionOrUrl must be an object or a url');
+      console.log('fileCollectionOrUrl must be an object or a url');
       return RSVP.resolve(null);
     }
   }
 
-  getMediaCollectionUrl(collection) {
+  _filesCollectionLink(collection) {
     let collectionRelation;
     if (_.isString(this.collectionRelation)) {
       collectionRelation = [this.collectionRelation];
@@ -64,6 +64,8 @@ class Config {
         }
       }
     }
+
+    return null;
   }
 
   ///////////
@@ -71,29 +73,29 @@ class Config {
   ///////////
 
   /*
-   * Returns an array of media objects for this collection if there are preloaded
+   * Returns an array of file objects for this collection if there are preloaded
    * objects.
    *
    * Returns a promise
    */
-  getMedia() {
-    return this.getMediaCollection().then(function(mediaCollection) {
-      let embedded = mediaCollection.embeddedResourceArray(this.mediaRelation);
+  getFiles() {
+    return this.getFilesCollection().then(function(fileCollection) {
+      let embedded = fileCollection.embeddedResourceArray(this.fileRelation);
 
       if (embedded.length > 0) {
         return embedded;
       } else {
-        // if there aren't any embedded media resources, try looking at the 'start' or 'first'
+        // if there aren't any embedded file resources, try looking at the 'start' or 'first'
         // relations as this might be a paginated resource
         let link;
 
-        let startLink = mediaCollection.link('start');
-        let firstLink = mediaCollection.link('first');
+        let startLink = fileCollection.link('start');
+        let firstLink = fileCollection.link('first');
 
         link = startLink || firstLink;
 
         if (! link) {
-          return RSVP.reject('Couldn\'t find either a start or first relation from which to fetch the media from.');
+          return RSVP.reject('Couldn\'t find either a start or first relation from which to fetch the file from.');
         }
 
         return reqwest({
@@ -103,31 +105,31 @@ class Config {
           type: 'json',
           url: link.href
         }).then(function(value) {
-          return halfred.parse(value).embeddedResourceArray(this.mediaRelation);
+          return halfred.parse(value).embeddedResourceArray(this.fileRelation);
         }.bind(this), function(error) {
-          return RSVP.reject(`There was an error fetching the preloaded media from the server: #{error}`);
+          return RSVP.reject(`There was an error fetching the preloaded file from the server: #{error}`);
         }.bind(this));
       }
     }.bind(this));
   }
 
   /*
-   * Return the url to retrieve the media objects from.
+   * Return the url to retrieve the file objects from.
    *
    * Returns a promise
    */
-  getMediaCollectionUrl() {
+  getFilesCollectionUrl() {
     return this.getCreateUrl();
   }
 
   /*
-   * Returns the url to use to create media objects.
+   * Returns the url to use to create file objects.
    *
    * Returns a promise
    */
-  getCreateUrl() {
-    return this.getMediaCollection().then(function(mediaCollection) {
-      return this.getMediaCollectionUrl(mediaCollection);
+  getFilesCreateUrl() {
+    return this.getFilesCollection().then(function(fileCollection) {
+      return this._filesCollectionLink(fileCollection);
     }.bind(this));
   }
 
@@ -136,33 +138,33 @@ class Config {
    *
    * For example: `file`
    */
-  getFileCreateParamName(media) {
+  getFileCreateParamName(file) {
     return this.fileCreateParamName;
   }
 
   /*
-   * Returns the URL for the given media object.
+   * Returns the URL for the given file object.
    *
    * Returns a promise
    */
-  getMediaUrl(media) {
-    return RSVP.resolve(media.link('self').href);
+  getFileUrl(file) {
+    return RSVP.resolve(file.link('self').href);
   }
 
   /*
-   * Returns the url to use when updating the given media object.
+   * Returns the url to use when updating the given file object.
    *
    * Returns a promise
    */
-  getMediaUpdateUrl(media) {
-    return this.getMediaUrl(media);
+  getFileUpdateUrl(file) {
+    return this.getFileUrl(file);
   }
 
   /*
    * Parses the response from the server from POSTing to the create url and
-   * returns the object representing the media.
+   * returns the object representing the file.
    *
-   * Returns an object that will be stored in the media store
+   * Returns an object that will be stored in the file store
    */
   parseCreateResponse(responseText) {
     return halfred.parse(responseText);
@@ -170,11 +172,11 @@ class Config {
 
   /*
    * Returns an object of field => value pairs that will be merged into the
-   * FormData sent to the server when a media object is created.
+   * FormData sent to the server when a file object is created.
    *
    * By default this method includes rails' csrf-token.
    */
-  getCreateFormFields(media) {
+  getCreateFormFields(file) {
     var csrfParamTag = document.querySelectorAll('meta[name=csrf-param]');
     let csrfParam = null;
     if (csrfParamTag) {
@@ -197,10 +199,10 @@ class Config {
   }
 
   /*
-   * Builds a media component (a React component) from the passed in media.
+   * Builds a file component (a React component) from the passed in file.
    */
-  buildMediaComponent(media) {
-    return React.createElement(MediaComponent, { media: media, key: media._meta.token });
+  buildFileComponent(file) {
+    return React.createElement(FileComponent, { file: file, key: file._meta.token });
   }
 }
 

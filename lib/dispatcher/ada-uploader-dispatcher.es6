@@ -1,10 +1,10 @@
-/* jshint esnext:true, browserify:true */
+/* jshint esnext:true, browserify:true, devel:true, browser:true */
 "use strict";
 
 var Dispatcher = require('flux').Dispatcher;
 var assign = require('object-assign');
 
-var MediaOrganizerDispatcher = Object.assign(new Dispatcher(), {
+var AdaUploaderDispatcher = Object.assign(new Dispatcher(), {
   dispatchAction: function(action) {
     var payload = {
       action: action
@@ -14,4 +14,4 @@ var MediaOrganizerDispatcher = Object.assign(new Dispatcher(), {
   }
 });
 
-module.exports = MediaOrganizerDispatcher;
+module.exports = AdaUploaderDispatcher;

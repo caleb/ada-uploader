@@ -1,51 +1,51 @@
-/* jshint esnext:true, browserify:true */
+/* jshint esnext:true, browserify:true, devel:true, browser:true */
 "use strict";
 
-var Dispatcher = require('../dispatcher/media-organizer-dispatcher');
-var Constants = require('../constants/media-constants');
+var Dispatcher = require('../dispatcher/ada-uploader-dispatcher');
+var Constants = require('../constants/file-constants');
 var Immutable = require('immutable');
 var EventEmitter = require('events').EventEmitter;
 
-let media = Immutable.Map({});
-let currentMedia = Immutable.Map({});
+let file = Immutable.Map({});
+let currentFile = Immutable.Map({});
 
-function loadFromConfig(config, media) {
-  media.forEach(function(media) {
-    media.setIn([config, media._meta.token], Immutable.fromJS(media));
+function loadFromConfig(config, file) {
+  file.forEach(function(file) {
+    file.setIn([config, file._meta.token], Immutable.fromJS(file));
   });
 }
 
-function createMedia(config, token, mediaObject) {
-  media = media.setIn([config, token], Immutable.fromJS(mediaObject));
+function createFile(config, token, fileObject) {
+  file = file.setIn([config, token], Immutable.fromJS(fileObject));
 }
 
-function updateMedia(config, token, mediaObject) {
-  media = media.mergeDeepIn([config, token], Immutable.fromJS(mediaObject));
+function updateFile(config, token, fileObject) {
+  file = file.mergeDeepIn([config, token], Immutable.fromJS(fileObject));
 }
 
-function updateMediaUploadProgress(config, token, mediaObject) {
-  media = media.setIn([config, token, '_meta', 'percentComplete'], mediaObject._meta.percentComplete);
+function updateFileUploadProgress(config, token, fileObject) {
+  file = file.setIn([config, token, '_meta', 'percentComplete'], fileObject._meta.percentComplete);
 }
 
-function mediaClicked(config, token) {
-  currentMedia.set(config, media.getIn([config, token]));
+function fileClicked(config, token) {
+  currentFile.set(config, file.getIn([config, token]));
 }
 
-function deleteMedia(config, token) {
-  media = media.deleteIn([config, token]);
+function deleteFile(config, token) {
+  file = file.deleteIn([config, token]);
 }
 
-class MediaStore extends EventEmitter {
+class FileStore extends EventEmitter {
   constructor() {
     this.dispatchToken = Dispatcher.register(this._handleEvent.bind(this));
   }
 
   get(config, token) {
-    return media.getIn([config, token]);
+    return file.getIn([config, token]);
   }
 
   getCurrent(config) {
-    return currentMedia.get(config);
+    return currentFile.get(config);
   }
 
   emitChange() {
@@ -55,31 +55,31 @@ class MediaStore extends EventEmitter {
   _handleEvent(payload) {
     switch(payload.type) {
     case Constants.LOAD_FROM_CONFIG:
-      loadFromConfig(payload.config, payload.media);
+      loadFromConfig(payload.config, payload.file);
       this.emitChange();
       break;
-    case Constants.CREATE_MEDIA_PENDING:
-      createMedia(payload.config, payload.token, payload.media);
+    case Constants.CREATE_FILE_PENDING:
+      createFile(payload.config, payload.token, payload.file);
       this.emitChange();
       break;
-    case Constants.CREATE_MEDIA_PROGRESS:
-      updateMediaUploadProgress(payload.config, payload.token, payload.media);
+    case Constants.CREATE_FILE_PROGRESS:
+      updateFileUploadProgress(payload.config, payload.token, payload.file);
       this.emitChange();
       break;
-    case Constants.CREATE_MEDIA_COMPLETE:
-      updateMedia(payload.config, payload.token, payload.media);
+    case Constants.CREATE_FILE_COMPLETE:
+      updateFile(payload.config, payload.token, payload.file);
       this.emitChange();
       break;
-    case Constants.CREATE_MEDIA_ERROR:
-      updateMedia(payload.config, payload.token, payload.media);
+    case Constants.CREATE_FILE_ERROR:
+      updateFile(payload.config, payload.token, payload.file);
       this.emitChange();
       break;
-    case Constants.MEDIA_CLICKED:
-      mediaClicked(payload.config, payload.token);
+    case Constants.FILE_CLICKED:
+      fileClicked(payload.config, payload.token);
       this.emitChange();
       break;
     }
   }
 }
 
-module.exports = MediaStore;
+module.exports = FileStore;

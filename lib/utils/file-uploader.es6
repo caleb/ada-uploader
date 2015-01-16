@@ -1,4 +1,4 @@
-/* jshint esnext:true, browserify:true */
+/* jshint esnext:true, browserify:true, devel:true, browser:true */
 "use strict";
 
 var EventEmitter = require('events').EventEmitter;
