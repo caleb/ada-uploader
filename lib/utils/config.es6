@@ -1,12 +1,12 @@
 /* jshint esnext:true, browserify:true, devel:true, browser:true */
 "use strict";
 
-var url            = require('url');
-var _              = require('lodash');
-var halfred        = require('halfred');
-var RSVP           = require('rsvp');
-var React          = require('react');
-var reqwest        = require('reqwest');
+var url           = require('url');
+var _             = require('lodash');
+var halfred       = require('halfred');
+var RSVP          = require('rsvp');
+var React         = require('react');
+var reqwest       = require('reqwest');
 var FileComponent = require('../components/file-component');
 
 class Config {
@@ -73,8 +73,7 @@ class Config {
   ///////////
 
   /*
-   * Returns an array of file objects for this collection if there are preloaded
-   * objects.
+   * Returns an array of file objects for this collection objects.
    *
    * Returns a promise
    */
