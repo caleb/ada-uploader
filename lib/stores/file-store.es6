@@ -1,16 +1,16 @@
 /* jshint esnext:true, browserify:true, devel:true, browser:true */
 "use strict";
 
-var Dispatcher = require('../dispatcher/ada-uploader-dispatcher');
-var Constants = require('../constants/file-constants');
-var Immutable = require('immutable');
+var Dispatcher   = require('../dispatcher/ada-uploader-dispatcher');
+var Constants    = require('../constants/file-constants');
+var Immutable    = require('immutable');
 var EventEmitter = require('events').EventEmitter;
 
 let file = Immutable.Map({});
 let currentFile = Immutable.Map({});
 
-function loadFromConfig(config, file) {
-  file.forEach(function(file) {
+function loadFromConfig(config, files) {
+  files.forEach(function(file) {
     file.setIn([config, file._meta.token], Immutable.fromJS(file));
   });
 }
@@ -55,7 +55,7 @@ class FileStore extends EventEmitter {
   _handleEvent(payload) {
     switch(payload.type) {
     case Constants.LOAD_FROM_CONFIG:
-      loadFromConfig(payload.config, payload.file);
+      loadFromConfig(payload.config, payload.files);
       this.emitChange();
       break;
     case Constants.CREATE_FILE_PENDING:

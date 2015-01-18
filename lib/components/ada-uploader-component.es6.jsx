@@ -7,12 +7,12 @@
 
 var React          = require('react');
 var ActionCreators = require('../actions/file-action-creators');
-var FileStore     = require('../stores/file-store');
+var FileStore      = require('../stores/file-store');
 var Constants      = require('../constants/file-constants');
 
 var AdaUploaderComponent = React.createClass({
   getInitialState: function() {
-    return { file: [] };
+    return { files: [] };
   },
 
   componentWillMount: function() {
@@ -24,15 +24,15 @@ var AdaUploaderComponent = React.createClass({
 
   fileUpdated: function() {
     // fetch all of the file for this configuration
-    let file = FileStore.get(this.props.config);
-    this.setState({ file: file });
+    let files = FileStore.get(this.props.config);
+    this.setState({ files: files });
   },
 
   render: function() {
-    let fileObjects = _.map(this.getState.file, this.props.config.buildFileComponent);
+    let fileObjects = _.map(this.getState.files, this.props.config.buildFileComponent);
 
     return (
-      <div>
+      <div className="ada-uplader">
         {fileObjects}
       </div>
     );

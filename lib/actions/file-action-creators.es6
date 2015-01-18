@@ -75,9 +75,9 @@ module.exports = {
 
   loadFromConfig: function(config) {
     // preloads the store from a configuration object
-    config.getFiles().then(function(file) {
+    config.getFiles().then(function(files) {
       // add a token to each preloaded file
-      file.forEach(function(file) {
+      files.forEach(function(file) {
         let token = _.uniqueId('file_');
         file._meta = file._meta || {};
         file._meta.token = token;
@@ -86,7 +86,7 @@ module.exports = {
       var payload = {
         type: Constants.LOAD_FROM_CONFIG,
         config: config,
-        file: file
+        files: files
       };
       Dispatcher.dispatchAction(payload);
     });
