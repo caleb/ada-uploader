@@ -1,3 +1,5 @@
+"use strict";
+
 var fastBrowserify = require('broccoli-fast-browserify');
 var to5            = require('broccoli-6to5-transpiler');
 var funnel         = require('broccoli-funnel');
