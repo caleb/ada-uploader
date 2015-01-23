@@ -4,7 +4,7 @@
     "collection": "http://server/media",
 
     "next": "http://server/media?page=3",
-    "prev": "http://server/media?page=1",
+    "previous": "http://server/media?page=1",
     "first": "http://server/media?page=1",
     "start": "http://server/media?page=1",
     "last": "http://server/media?page=4",
