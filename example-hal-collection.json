@@ -12,7 +12,7 @@
 
     "curies": {
       "ada-uploader": {
-        "href": "http://github.com/caleb/ada-uploader/{rel}"
+        "href": "http://ada-uploader.land.fm/rels/{rel}"
       }
     }
   },
@@ -20,7 +20,7 @@
   "total": 100,
 
   "_embedded": {
-    "mo:media": [
+    "ada-uploader:media": [
       {
         "_links": {
           "self": "http://server/media/1",

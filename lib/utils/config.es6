@@ -17,6 +17,7 @@ class Config {
     this.fileRelation           = options.fileRelation           || 'ada-uploader:file';
     this.acceptedTypes          = options.acceptedTypes          || [/video\/.*/, /image\/.*/];
     this.fileCreateParamName    = options.fileCreateParamName    || 'file';
+    this.adaUploaderRelTemplate = "http://ada-uploader.land.fm/rels/{rel}";
   }
 
   getFilesCollection() {
