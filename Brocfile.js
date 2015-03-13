@@ -1,7 +1,7 @@
 "use strict";
 
 var fastBrowserify = require('broccoli-fast-browserify');
-var to5            = require('broccoli-6to5-transpiler');
+var to5            = require('broccoli-babel-transpiler');
 var funnel         = require('broccoli-funnel');
 var uglify         = require('broccoli-uglify-js');
 var react          = require('broccoli-react');
@@ -49,4 +49,8 @@ var ugly = new funnel(uglify(bundle), {
   }
 });
 
-module.exports = merge([ugly, bundle]);
+var exampleFiles = new funnel('example', { include: [/(?:\.html|\.css)$/], destDir: 'example' });
+var exampleJavascriptFiles = new funnel('example', { include: [/(?:\.js|\.es6)$/], destDir: 'example' });
+exampleJavascriptFiles = stripExtension(exampleJavascriptFiles);
+
+module.exports = merge([ugly, bundle, exampleFiles, exampleJavascriptFiles]);
