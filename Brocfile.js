@@ -1,31 +1,15 @@
+/* jshint esnext:true, browserify:true, devel:true, browser:true */
 "use strict";
 
-var fastBrowserify = require('broccoli-fast-browserify');
-var to5            = require('broccoli-babel-transpiler');
-var funnel         = require('broccoli-funnel');
-var uglify         = require('broccoli-uglify-js');
-var react          = require('broccoli-react');
-var merge          = require('broccoli-merge-trees');
+var browserify = require('broccoli-fast-browserify');
+var babelify   = require('babelify');
+var funnel     = require('broccoli-funnel');
+var uglify     = require('broccoli-uglify-js');
+var merge      = require('broccoli-merge-trees');
 
-to5.prototype.extensions = ['es6', 'js'];
+var javascriptFiles = new funnel('lib', { include: [/(?:\.js|\.jsx)$/] });
 
-function stripExtension(tree) {
-  return new funnel(tree, {
-    getDestinationPath: function(relativePath) {
-      return relativePath.replace(/\.[^.]+$/, '');
-    }
-  });
-}
-
-var javascriptFiles = new funnel('lib', { include: [/(?:\.js|\.es6)$/] });
-var reactFiles = react(new funnel('lib', { include: [/\.jsx$/] }));
-reactFiles = stripExtension(reactFiles);
-
-var es6Tree = to5(merge([javascriptFiles, reactFiles]), {
-  sourceMap: 'inline'
-});
-
-var bundle = fastBrowserify(es6Tree, {
+var bundle = browserify(javascriptFiles, {
   // mark 'vertx' as external because RSVP has a require for it, which browserify
   // picks up on, but `vertx` isn't actually a module we can include
   // this has been fixed in RSVP@HEAD but not in the release version
@@ -33,12 +17,14 @@ var bundle = fastBrowserify(es6Tree, {
   externals: ['vertx'],
 
   browserify: {
-    debug: true
+    debug: true,
+    extensions: ['.jsx']
   },
 
   bundles: {
     'ada-uploader.js': {
-      entryPoints: ['index.js']
+      entryPoints: ['index.js'],
+      transform: babelify
     }
   }
 });
@@ -49,8 +35,23 @@ var ugly = new funnel(uglify(bundle), {
   }
 });
 
-var exampleFiles = new funnel('example', { include: [/(?:\.html|\.css)$/], destDir: 'example' });
-var exampleJavascriptFiles = new funnel('example', { include: [/(?:\.js|\.es6)$/], destDir: 'example' });
-exampleJavascriptFiles = stripExtension(exampleJavascriptFiles);
+var exampleFiles = new funnel('example', { include: [/(?:\.html|\.css|\.json)$/], destDir: 'example' });
+var exampleJavascriptFiles = new funnel('example', { include: [/(?:\.js|\.jsx)$/], destDir: 'example' });
+var exampleBundle = browserify(exampleJavascriptFiles, {
+  browserify: {
+    debug: true,
+    extensions: ['.jsx'],
+    paths: [
+      __dirname + '/lib'
+    ]
+  },
 
-module.exports = merge([ugly, bundle, exampleFiles, exampleJavascriptFiles]);
+  bundles: {
+    'example/application.js': {
+      entryPoints: ['example/application.jsx'],
+      transform: babelify
+    }
+  }
+});
+
+module.exports = merge([ugly, bundle, exampleFiles, exampleBundle]);

@@ -1,0 +1,49 @@
+{
+  "_links": {
+    "self": { "href": "http://server/media?page=2" },
+    "collection": { "href": "http://server/media" },
+
+    "next": { "href": "http://server/media?page=3" },
+    "previous": { "href": "http://server/media?page=1" },
+    "first": { "href": "http://server/media?page=1" },
+    "start": { "href": "http://server/media?page=1" },
+    "last": { "href": "http://server/media?page=4" },
+    "search": { "href": "http://server/media{?page,q}", "templated": true },
+
+    "curies": {
+      "ada-uploader": {
+        "href": "http://ada-uploader.land.fm/rels/{rel}"
+      }
+    }
+  },
+
+  "total": 100,
+
+  "_embedded": {
+    "ada-uploader:file": [
+      {
+        "_links": {
+          "self": { "href": "http://server/media/1" },
+          "collection": { "href": "http://server/media" },
+          "ada-uploader:original": { "href": "http://path/to/video" },
+          "icon": { "href": "http://path/to/icon" }
+        },
+        "title": "Ada!",
+        "mime_type": "video/mp4"
+      },
+      {
+        "_links": {
+          "self": { "href": "http://server/media/2" },
+          "collection": { "href": "http://server/media" },
+          "icon": { "href": "http://path/to/icon" },
+          "ada-uploader:original": { "href": "http://path/to/original/image" },
+          "ada-uploader:full": { "href": "http://path/to/full/image" },
+          "ada-uploader:large": { "href": "http://path/to/large/image" },
+          "ada-uploader:medium": { "href": "http://path/to/medium/image" },
+          "ada-uploader:small": { "href": "http://path/to/small/image" }
+        },
+        "title": "Ada 2!"
+      }
+    ]
+  }
+}

@@ -5,10 +5,10 @@
  * This is the top level React component responsible for rendering the collection.
  */
 
-var React          = require('react');
-var ActionCreators = require('../actions/file-action-creators');
-var FileStore      = require('../stores/file-store');
-var Constants      = require('../constants/file-constants');
+import React from 'react';
+import ActionCreators from '../actions/file-action-creators';
+import FileStore from '../stores/file-store';
+import Constants from '../constants/file-constants';
 
 var AdaUploaderComponent = React.createClass({
   getInitialState: function() {

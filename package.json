@@ -15,9 +15,8 @@
     "rsvp": "^3.0.16"
   },
   "devDependencies": {
+    "babelify": "^5.0.4",
     "broccoli": "^0.13.3",
-    "broccoli-react": "^0.7.0",
-    "broccoli-babel-transpiler": "^4.0.1",
     "broccoli-fast-browserify": "^0.2.4",
     "broccoli-funnel": "^0.1.6",
     "broccoli-merge-trees": "^0.2.1",
